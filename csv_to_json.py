@@ -31,49 +31,65 @@ def check_files(csv_file: str, json_file: str) -> None:
 
     if ext != "csv":
         print("No valid CSV file found!")
-        print("Usage: python csv_to_json.py <path/to/file/file.csv> <path/to/file/file.json>")
+        print("Usage: python csv_to_json.py <path/to/file.csv> <path/to/file.json>")
         sys.exit(1)
     
     _, ext = os.path.splittext(json_file)
 
     if ext != "json":
         print("No valid JSON file found!")
-        print("Usage: python csv_to_json.py <path/to/file/file.csv> <path/to/file/file.json>")
+        print("Usage: python csv_to_json.py <path/to/file.csv> <path/to/file.json>")
+        sys.exit(1)
+
+
+def ask_for_default_file() -> str:
+    print("No output JSON file specified!\n")
+    print("Do you wish to save to output.json? Y/N: ")
+
+    response = input().strip()
+    
+    # Allows JSON to be written to default if no JSON file is given as arg
+    if response.lower() in ("y", "yes"):
+        return "output.json"
+    
+    else:
+        print("Need path to JSON file!")
+        print("Usage: python csv_to_json.py <path/to/file.csv> <path/to/file.json>")
         sys.exit(1)
 
 
 def main() -> None:
-    if len(sys.argv) == 3:
-        csv_file = sys.argv[1]
-        json_file = sys.argv[2]
-    
-    elif len(sys.argv) == 2:
-        csv_file = sys.argv[1]
-
-        print("No output JSON file specified!\n")
-        print("Do you wish to save to output.json? Y/N: ")
-
-        response = input().strip()
+    try: 
+        if len(sys.argv) == 3:
+            csv_file = sys.argv[1]
+            json_file = sys.argv[2]
         
-        # Allows JSON to be written to default if no JSON file is given as arg
-        if response.lower() in ("y", "yes"):
-            json_file = "output.json"
+        elif len(sys.argv) == 2:
+            csv_file = sys.argv[1]
+
+            json_file = ask_for_default_file()
         
         else:
-            print("Need path to JSON file!")
-            print("Usage: python csv_to_json.py <path/to/file/file.csv> <path/to/file/file.json>")
+            print("Need path to input and output files!")
+            print("Usage: python csv_to_json.py <path/to/file.csv> <path/to/file.json>")
             sys.exit(1)
+
+        check_files(csv_file, json_file)
+        
+        csv_to_json(csv_file, json_file)
+
+        print(f"CSV file contents written to {json_file}")
     
-    else:
-        print("Need path to input and output files!")
-        print("Usage: python csv_to_json.py <path/to/file/file.csv> <path/to/file/file.json>")
+    except KeyboardInterrupt as e:
+        print("Conversion terminated by user. Exiting program.")
+        sys.exit(0)
+    
+    except json.JSONDecodeError as e:
+        print(f"Error writting to JSON file: {e}")
         sys.exit(1)
-
-    check_files(csv_file, json_file)
     
-    csv_to_json(csv_file, json_file)
-
-    print(f"CSV file contents written to {json_file}")
+    except Exception as e:
+        print(f"Undescript rror occurred: {e}")
 
 
 if __name__ == "__main__":
