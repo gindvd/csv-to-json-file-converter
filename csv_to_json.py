@@ -11,7 +11,7 @@ def csv_to_json(csv_file: str, json_file: str) -> None:
     with open(csv_file, mode="r", newline="", encoding="utf-8") as csvfile:
         reader = csv.DictReader(csvfile)
 
-        # Removes key if value doesn't exist
+        # Removes empty values
         data = [
             {key: value for key, value in row.items() if value}
             for row in reader
